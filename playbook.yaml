@@ -1,0 +1,43 @@
+- name: Populating container images into internal registry
+  hosts: workstations
+  become: false
+  remote_user: student
+  gather_facts: false
+  tasks:
+  - name: Log into each container registry on students workstation
+    ansible.builtin.command: 
+      cmd: podman login registry.ocp4.example.com:8443 -u developer -p developer
+
+  - name: copy postgresql.tar.gz files into workstations
+    ansible.builtin.copy:
+      src: files/postgresql.tar.gz
+      dest: /tmp/postgres.tar.gz
+  - name: push container images to the registry
+    ansible.builtin.command:
+      cmd: skopeo copy docker-archive:/tmp/postgres.tar.gz docker://registry.ocp4.example.com:8443/postgres:13
+
+  - name: download airflow.tar.gz files into workstations
+    ansible.builtin.copy:
+      src: files/airflow.tar.gz
+      dest: /tmp/airflow.tar.gz
+
+  - name: push container images to the registry
+    ansible.builtin.command:
+      cmd: skopeo copy docker-archive:/tmp/airflow.tar.gz docker://registry.ocp4.example.com:8443/apache/airflow:3.0.3
+
+
+  - name: delete container images from worsktation
+    ansible.builtin.command:
+      cmd: rm /tmp/postgres.tar.gz /tmp/airflow.tar.gz
+  - name: Make Postgres Repository public
+    infra.quay_configuration.quay_repository:
+      quay_host: "https://registry.ocp4.example.com:8443"  # Or your private Quay instance URL
+      quay_username: "{{ quay_username }}"        # Your Quay OAuth access token
+      quay_password: "{{ quay_password }}"
+      name: "{{ item }}"
+      visibility: "public"
+      state: present
+    loop:
+      - library/postgres
+      - apache/airflow
+
