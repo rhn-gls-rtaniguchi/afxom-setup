@@ -20,15 +20,23 @@
     ansible.builtin.copy:
       src: files/airflow.tar.gz
       dest: /tmp/airflow.tar.gz
-
   - name: push container images to the registry
     ansible.builtin.command:
       cmd: skopeo copy docker-archive:/tmp/airflow.tar.gz docker://registry.ocp4.example.com:8443/apache/airflow:3.0.3
 
+  - name: copy python.tar.gz files into workstations
+    ansible.builtin.copy:
+      src: files/python.tar.gz
+      dest: /tmp/python.tar.gz
+  - name: push container images to the registry
+    ansible.builtin.command:
+      cmd: skopeo copy docker-archive:/tmp/python.tar.gz docker://registry.ocp4.example.com:8443/ubi9/python3.9
+
 
   - name: delete container images from worsktation
     ansible.builtin.command:
-      cmd: rm /tmp/postgres.tar.gz /tmp/airflow.tar.gz
+      cmd: rm /tmp/postgres.tar.gz /tmp/airflow.tar.gz /python.tar.gz
+      
   - name: Make Postgres Repository public
     infra.quay_configuration.quay_repository:
       quay_host: "https://registry.ocp4.example.com:8443"  # Or your private Quay instance URL
@@ -40,4 +48,5 @@
     loop:
       - library/postgres
       - apache/airflow
+      - ubi9/python3.9
 
