@@ -6,7 +6,7 @@
   tasks:
   - name: Log into each container registry on students workstation
     ansible.builtin.command: 
-      cmd: podman login registry.ocp4.example.com:8443 -u developer -p developer
+      cmd: podman login registry.ocp4.example.com:8443 -u {{ quay_username }} -p {{ quay_password }}
 
   - name: copy postgresql.tar.gz files into workstations
     ansible.builtin.copy:
@@ -35,7 +35,7 @@
 
   - name: delete container images from worsktation
     ansible.builtin.command:
-      cmd: rm /tmp/postgres.tar.gz /tmp/airflow.tar.gz /python.tar.gz
+      cmd: rm /tmp/postgres.tar.gz /tmp/airflow.tar.gz /tmp/python.tar.gz
       
   - name: Make Postgres Repository public
     infra.quay_configuration.quay_repository:
