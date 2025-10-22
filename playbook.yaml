@@ -3,39 +3,26 @@
   become: false
   remote_user: student
   gather_facts: false
+  vars:
+    images:
+      - name: PostgreSQL
+        image: registry.ocp4.example.com:8443/postgres:13
+        filename: postgres.tar.gz
+      - name: Airflow
+        image: registry.ocp4.example.com:8443/apache/airflow:3.0.3
+        filename: airflow.tar.gz
+      - name: Python
+        image: registry.ocp4.example.com:8443/ubi9/python3.9
+        filename: python.tar.gz
+
   tasks:
   - name: Log into each container registry on students workstation
     ansible.builtin.command: 
       cmd: podman login registry.ocp4.example.com:8443 -u {{ quay_username }} -p {{ quay_password }}
 
-  - name: copy postgresql.tar.gz files into workstations
-    ansible.builtin.copy:
-      src: files/postgresql.tar.gz
-      dest: /tmp/postgres.tar.gz
-  - name: push container images to the registry
-    ansible.builtin.command:
-      cmd: skopeo copy docker-archive:/tmp/postgres.tar.gz docker://registry.ocp4.example.com:8443/postgres:13
-
-  - name: download airflow.tar.gz files into workstations
-    ansible.builtin.copy:
-      src: files/airflow.tar.gz
-      dest: /tmp/airflow.tar.gz
-  - name: push container images to the registry
-    ansible.builtin.command:
-      cmd: skopeo copy docker-archive:/tmp/airflow.tar.gz docker://registry.ocp4.example.com:8443/apache/airflow:3.0.3
-
-  - name: copy python.tar.gz files into workstations
-    ansible.builtin.copy:
-      src: files/python.tar.gz
-      dest: /tmp/python.tar.gz
-  - name: push container images to the registry
-    ansible.builtin.command:
-      cmd: skopeo copy docker-archive:/tmp/python.tar.gz docker://registry.ocp4.example.com:8443/ubi9/python3.9
-
-
-  - name: delete container images from worsktation
-    ansible.builtin.command:
-      cmd: rm /tmp/postgres.tar.gz /tmp/airflow.tar.gz /tmp/python.tar.gz
+  - name: Pushing containers 
+    ansible.builtin.include_tasks: container_push.yaml
+    loop: "{{ images }}" 
       
   - name: Make Postgres Repository public
     infra.quay_configuration.quay_repository:
