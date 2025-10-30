@@ -23,7 +23,8 @@
   - name: Pushing containers 
     ansible.builtin.include_tasks: container_push.yaml
     loop: "{{ images }}" 
-    loop_var: item
+    loop_control:
+      loop_var: item
       
   - name: Make Postgres Repository public
     infra.quay_configuration.quay_repository:
