@@ -1,15 +1,15 @@
 - name: copy {{ current_item.name }} files into workstations
   ansible.builtin.copy:
-    src: files/{{ current_item['filename'] }}
-    dest: /tmp/{{ current_item['filename'] }}
+    src: files/{{ current_item.value.filename }}
+    dest: /tmp/{{ current_item.value.filename }}
     
-- name: push {{ current_item['image'] }} container images to the registry
+- name: push {{ current_item.value.image }} container images to the registry
   ansible.builtin.command:
-    cmd: skopeo copy docker-archive:/tmp/{{ current_item['filename'] }} docker://{{ current_item['image'] }}
+    cmd: skopeo copy docker-archive:/tmp/{{ current_item.value.filename }} docker://{{ current_item.value.image }}
 
-- name: delete {{ current_item['filename'] }} container images from worsktation
+- name: delete {{ current_item.value.filename }} container images from worsktation
    ansible.builtin.file:
-    path: /tmp/{{ current_item['filename'] }}
+    path: /tmp/{{ current_item.value.filename }}
     state: absent
 
      
