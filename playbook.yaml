@@ -22,7 +22,7 @@
         filename: python.tar.gz
 
     loop_control:
-      loop_var: item
+      loop_var: current_item
           
   - name: Make Postgres Repository public
     infra.quay_configuration.quay_repository:
