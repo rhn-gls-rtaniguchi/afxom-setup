@@ -7,7 +7,7 @@
     images:
       postgresql:
         image: registry.ocp4.example.com:8443/postgres:13
-        filename: postgres.tar.gz
+        filename: postgresql.tar.gz
       airflow:
         image: registry.ocp4.example.com:8443/apache/airflow:3.0.3
         filename: airflow.tar.gz
