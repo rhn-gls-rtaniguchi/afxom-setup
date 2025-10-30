@@ -1,0 +1,27 @@
+- name: Populating container images into internal registry
+  hosts: localhost
+  become: false
+  gather_facts: false
+  tasks:
+  - name: Create directory
+    ansible.builtin.file:
+      path: /tmp/config.d/
+  - name: Read Roster filename
+    community.general.read_csv:
+      path: roster.csv
+    register: roster_users
+  - name: Create SSH configuration file
+    ansible.builtin.template:
+      src: templates/VT.conf.j2
+      dest: /tmp/config.d/{{ item.Name | split | first | lower }}.conf
+    loop: "{{ roster_users.list }}"
+
+  - name: Execute ls command and register output
+    ansible.builtin.command: ls /tmp/config.d/
+    register: ls_output
+
+  - name: Save ls output to a local file
+    ansible.builtin.template:
+      src: "templates/inventory.j2"
+      dest: "new_inventory" # Specify the desired local file path
+    delegate_to: localhost

@@ -1,0 +1,12 @@
+- name: Clean leftovers in student's machine'
+  hosts: workstations
+  become: false
+  remote_user: student
+  gather_facts: false
+  tasks:
+    - name: Stop and delete all containers from chapter 1
+      ansible.builtin.shell: cd {{ item }} && podman compose down -v
+      loop:
+        - ~/XOM-airflow-workshop/env-ch1/
+        - ~/XOM-airflow-workshop/env-ch2/
+        - ~/XOM-airflow-workshop/env-ch3/
