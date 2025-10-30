@@ -1,6 +1,6 @@
 - name: copy {{ current_item.key }} files into workstations
   ansible.builtin.copy:
-    src: files/{{ current_item.value.filename }}
+    src: "{{ current_item.value.filename }}"
     dest: /tmp/{{ current_item.value.filename }}
     
 - name: push {{ current_item.value.image }} container images to the registry
