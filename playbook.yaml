@@ -3,8 +3,14 @@
   become: false
   remote_user: student
   gather_facts: false
-  vars:
-    images:
+  tasks:
+  - name: Log into each container registry on students workstation
+    ansible.builtin.command: 
+      cmd: podman login registry.ocp4.example.com:8443 -u {{ quay_username }} -p {{ quay_password }}
+
+  - name: Pushing containers 
+    ansible.builtin.include_tasks: container_push.yaml
+    loop: 
       - name: PostgreSQL
         image: registry.ocp4.example.com:8443/postgres:13
         filename: postgres.tar.gz
@@ -15,17 +21,9 @@
         image: registry.ocp4.example.com:8443/ubi9/python3.9
         filename: python.tar.gz
 
-  tasks:
-  - name: Log into each container registry on students workstation
-    ansible.builtin.command: 
-      cmd: podman login registry.ocp4.example.com:8443 -u {{ quay_username }} -p {{ quay_password }}
-
-  - name: Pushing containers 
-    ansible.builtin.include_tasks: container_push.yaml
-    loop: "{{ images }}" 
     loop_control:
       loop_var: item
-      
+          
   - name: Make Postgres Repository public
     infra.quay_configuration.quay_repository:
       quay_host: "https://registry.ocp4.example.com:8443"  # Or your private Quay instance URL
