@@ -22,7 +22,7 @@
 
   - name: Pushing containers 
     ansible.builtin.include_tasks: container_push.yaml
-    loop: "{{ images }}"
+    loop: "{{ lookup('dict',images) }}"
     loop_control:
       loop_var: current_item
           
