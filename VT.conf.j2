@@ -1,0 +1,18 @@
+Host {{ item.Name | split | first | lower }}-classroom-vt
+  Hostname {{ item.Public_IP }}
+  StrictHostKeyChecking no
+  UpdateHostKeys yes
+  User cloud-user
+  Port 22022
+  IdentityFile ~/.ssh/rht_classroom.rsa
+  IdentitiesOnly yes
+
+Host {{ item.Name | split | first | lower }}
+  Hostname 172.25.252.1
+  ProxyJump {{ item.Name | split | first | lower }}-classroom-vt
+  StrictHostKeyChecking no
+  UpdateHostKeys yes
+  User student
+  Port 53009
+  DynamicForward 8888
+  IdentityFile ~/.ssh/rht_classroom.rsa

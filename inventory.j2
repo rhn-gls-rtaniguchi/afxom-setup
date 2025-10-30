@@ -1,0 +1,4 @@
+[workstations]
+{% for item in ls_output.stdout.splitlines() %}
+{{ item | split(".") | first }}
+{% endfor %}
